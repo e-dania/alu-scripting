@@ -1,27 +1,26 @@
 #!/usr/bin/python3
 """
-Importing requests module
+This is a function that queries the Reddit API and prints the titles of the
+first 10 hot posts for a given subreddit
 """
 
-from requests import get
+import json
+import requests
 
 
-def number_of_subscribers(subreddit):
+def top_ten(subreddit):
     """
-    function that queries the Reddit API and returns the number of subscribers
-    (not active users, total subscribers) for a given subreddit.
+    Queries the Reddit API and prints the titles of the
+    first 10 hot posts for a given subreddit
     """
-
-    if subreddit is None or not isinstance(subreddit, str):
-        return 0
-
-    user_agent = {'User-agent': 'Google Chrome Version 81.0.4044.129'}
-    url = 'https://www.reddit.com/r/{}/about.json'.format(subreddit)
-    response = get(url, headers=user_agent)
-    all_data = response.json()
-
-    try:
-        return all_data.get('data').get('subscribers')
-
-    except:
-        return 0
+    subreddit_URL = 'https://www.reddit.com/r/{}/hot.json?limit=10'.format(subreddit)
+    response = requests.get(subreddit_URL, headers={"user-agent": "user"}, allow_redirects=False)
+    if response.status_code == 200:
+        print("OK", end='')
+        subreddit_info = response.json()
+        if "data" in subreddit_info:
+            children = subreddit_info.get("data").get("children")
+            for child in children:
+                print(child.get("data").get("title"))
+    else:
+        print("Not a valid subreddit", end='')
